@@ -3,14 +3,17 @@ MCU ?= attiny45
 # by default.
 F_CPU ?= 1000000UL
 
-CC = avr-gcc
-CFLAGS = -Os -Wall -DF_CPU=$(F_CPU) -mmcu=$(MCU) -c
-LDFLAGS = -mmcu=$(MCU)
-OBJS = $(addprefix src/, main.o pin.o tone.o tune.o)
-PROGNAME = musicbox
-
 AVRDUDEMCU ?= t45
 AVRDUDEARGS ?= -c usbtiny -P usb 
+
+TuneName ?= tortoise
+
+OBJS = $(addprefix src/, main.o pin.o tone.o tune.o tunes/$(TuneName).o)
+PROGNAME = musicbox
+
+CC = avr-gcc
+CFLAGS = -Os -Wall -DTuneName=$(TuneName) -DF_CPU=$(F_CPU) -mmcu=$(MCU) -c
+LDFLAGS = -mmcu=$(MCU)
 
 # Patterns
 
