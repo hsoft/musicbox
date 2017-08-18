@@ -42,3 +42,8 @@ instructions/photos are coming.
 
 To build, you need a proper `avr-libc` setup, that is, `avr-gcc` and `avrdude`. You can run `make`
 to build the code and `make send` to write it onto the chip through the AVR tiny programmer.
+
+## Copyrights
+
+Copyright 2017 Virgil Dupras
+Licensed under the GPL, available in the `LICENSE` file of this repo.
