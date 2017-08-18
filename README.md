@@ -3,7 +3,7 @@
 This repo will soon contain the schematics, assembly instructions, photos and source code for an
 electronic version of a music box. The music is made with a Piezo and rotational movement detection
 is made with a reed switch. It runs on two AAA batteries (rechargeable or not). It has a 4
-positions selector to choose among 4 tunes to play.
+positions selector to choose among 3 tunes to play.
 
 ## Parts
 
@@ -11,7 +11,7 @@ positions selector to choose among 4 tunes to play.
 * 8 positions DIP IC socket
 * Reed switch
 * Piezo
-* 4 positions rotary switch
+* 3 positions rotary switch
 * 2-cells AAA batteries holder
 * SPST switch
 * 10K resistor
@@ -34,9 +34,8 @@ we turn B1 low then high 440 times per second.
 ## Status
 
 This is my first real electronics project and I've finally got to the point where I'm happy about
-the cleanliness of my prototype, so I'm immortalizing it in this repo. For now, there's only the
-source code and I haven't implemented the rotary switch part yet, but schematics and assembly
-instructions/photos are coming.
+the cleanliness of my prototype, so I'm immortalizing it in this repo. For now, it lacks assembly
+instructions/photos and I haven't actually implemented the rotary switch part yet, but it's coming.
 
 ## Build
 
