@@ -12,7 +12,8 @@ OBJS = $(addprefix src/, main.o pin.o tone.o tune.o tunes/$(TuneName).o)
 PROGNAME = musicbox
 
 CC = avr-gcc
-CFLAGS = -Os -Wall -DTuneName=$(TuneName) -DF_CPU=$(F_CPU) -mmcu=$(MCU) -c
+EXTRACFLAGS ?= 
+CFLAGS = -Os -Wall $(EXTRACFLAGS) -DTuneName=$(TuneName) -DF_CPU=$(F_CPU) -mmcu=$(MCU) -c
 LDFLAGS = -mmcu=$(MCU)
 
 # Patterns

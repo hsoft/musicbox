@@ -21,6 +21,15 @@ int main()
 
     TCCR0B = 0;
 
+// The PLAY_ONCE mode is useful to debug new tunes
+#ifdef PLAY_ONCE
+    while (TuneName[tune_index] > 0) {
+        play_note(PinPiezo, TuneName[tune_index]);
+        tune_index++;
+    }
+    tune_index = 0;
+#endif
+
     while (1) {
         if (pinishigh(PinMagnet)) {
             if (!magnet_is_on) {
