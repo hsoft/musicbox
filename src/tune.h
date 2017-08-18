@@ -3,6 +3,7 @@
 #include "pin.h"
 
 #define NOTE_PAUSE 1
+#define NOTE_B3 247
 #define NOTE_C4 262
 #define NOTE_D4 294
 #define NOTE_E4 330
