@@ -1,6 +1,7 @@
+#include <avr/pgmspace.h>
 #include "../tune.h"
 
-Tune funkytown = {
+const Tune funkytown PROGMEM = {
     NOTE_A4,
     NOTE_A4,
     NOTE_G4,

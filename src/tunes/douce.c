@@ -1,6 +1,7 @@
+#include <avr/pgmspace.h>
 #include "../tune.h"
 
-Tune douce = {
+const Tune douce PROGMEM = {
     NOTE_C4,
     NOTE_C4,
     NOTE_C4,

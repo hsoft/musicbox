@@ -1,6 +1,7 @@
+#include <avr/pgmspace.h>
 #include "../tune.h"
 
-Tune tortoise = {
+const Tune tortoise PROGMEM = {
     NOTE_E4,
     NOTE_F4,
     NOTE_G4,

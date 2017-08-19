@@ -42,6 +42,16 @@ instructions/photos and I haven't actually implemented the rotary switch part ye
 To build, you need a proper `avr-libc` setup, that is, `avr-gcc` and `avrdude`. You can run `make`
 to build the code and `make send` to write it onto the chip through the AVR tiny programmer.
 
+3 tunes among the ones in `src/tunes` are chosen through the `TuneNameX` makefile defines. You can
+override them like this:
+
+    TuneName2=othertune make
+
+There is also a special `PLAY_ONCE` mode that makes the program play the first tune once on
+initialization. It makes tune debugging much easier.
+
+    EXTRACFLAGS="-DPLAY_ONCE" make
+
 ## Copyrights
 
 Copyright 2017 Virgil Dupras

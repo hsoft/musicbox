@@ -6,14 +6,18 @@ F_CPU ?= 1000000UL
 AVRDUDEMCU ?= t45
 AVRDUDEARGS ?= -c usbtiny -P usb 
 
-TuneName ?= tortoise
+TuneName1 ?= douce
+TuneName2 ?= tortoise
+TuneName3 ?= funkytown
 
-OBJS = $(addprefix src/, main.o pin.o tone.o tune.o tunes/$(TuneName).o)
+OBJS = $(addprefix src/, main.o pin.o tone.o tune.o)
+OBJS += $(addprefix src/tunes/, $(TuneName1).o $(TuneName2).o $(TuneName3).o)
 PROGNAME = musicbox
 
 CC = avr-gcc
 EXTRACFLAGS ?= 
-CFLAGS = -Os -Wall $(EXTRACFLAGS) -DTuneName=$(TuneName) -DF_CPU=$(F_CPU) -mmcu=$(MCU) -c
+EXTRACFLAGS += -DTuneName1=$(TuneName1) -DTuneName2=$(TuneName2) -DTuneName3=$(TuneName3)
+CFLAGS = -Os -Wall $(EXTRACFLAGS) -DF_CPU=$(F_CPU) -mmcu=$(MCU) -c
 LDFLAGS = -mmcu=$(MCU)
 
 # Patterns
