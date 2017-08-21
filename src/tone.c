@@ -1,60 +1,84 @@
 #include "tone.h"
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <stdbool.h>
+#include "timer.h"
+#include "util.h"
 
-static volatile bool tone_was_interrupted = false;
+/* Tone generation unit
+ *
+ * There are many constraints to consider when determining how we'll generate our tones, the most
+ * important one being MCU speed. To maximize energy efficiency, we want to keep our MCU at 1MHz.
+ * However, the MCU alone is not fast enough to toggle the piezo pin often enough to have the
+ * proper sound.
+ *
+ * Well, actually it is... but it's complicated. The first version of this unit was very simple. To
+ * play a tone, we would monopolize the MCU for the duration of the tone, toggling the piezo pin
+ * using TCNT0 to know when to toggle.
+ *
+ * It worked well, but because it monopolized the MCU, the reed switch couldn't be monitored while
+ * a tone played. Thus, it couldn't manage a fast-turning handle situation and missed notes.
+ *
+ * To fix this, I first tried an "event" approach where the main loop would read the reed switch
+ * and then called a "process_tone()" function to continue toggling a tone if needed, but for
+ * this approach, the MCU definitely wasn't fast enough. The tone was glitchy.
+ *
+ * This is why I went with this interrupt approach. It's much faster and results in the proper tone
+ * being output.
+ *
+ * An even cooler approach could be to put the timer into "pin toggling" mode, but I should have
+ * thought of this before I soldered my whole board, because it turns out that the output pin for
+ * timer0 is... PB0, an unsoldered pin. I could use timer1 instead of timer0, but it turns out
+ * that it works differently from timer0 and I don't have the energy right now to learn about this
+ * timer. Maybe later.
+ */
+
+static Pin piezo_pin;
+static volatile unsigned long current_toggle_count = 0;
 
 /* frequency: hertz
- * duration: millis, 0 == forever, until with stop_tone() through an interrupt
+ * duration: millis
  */
 void tone(Pin pin, unsigned int frequency, unsigned int duration)
 {
     unsigned long target_counter_reset;
-    unsigned char prescaler_shifts[5] = {0, 3, 6, 8, 10};
-    unsigned char prescaler_bits[5] = {0b001, 0b010, 0b011, 0b100, 0b101};
-    unsigned char prescaler_index;
-    unsigned int prescaled_counter_reset;
-    unsigned long toggle_count;
-    bool piezo_is_on = false;
 
-    tone_was_interrupted = false;
+    piezo_pin = pin;
 
     // We divide by 2 because our frequency represent a whole cycle (on, then off)
     target_counter_reset = F_CPU / frequency / 2;
-    for (prescaler_index=0; prescaler_index<=5; prescaler_index++) {
-        if (target_counter_reset >> prescaler_shifts[prescaler_index] <= 0xff) {
-            break;
-        }
-    }
-    prescaled_counter_reset = target_counter_reset >> prescaler_shifts[prescaler_index];
-    toggle_count = 2 * (long)frequency * (long)duration / 1000;
 
-    // Set CS10, CS11 and CS12 according to our selected prescaler bits
-    TCCR0B &= 0b11111000;
-    TCCR0B |= prescaler_bits[prescaler_index];
+    set_timer0_target(target_counter_reset);
+    // Enable CTC mode
+    sbi(TCCR0A, WGM01);
+    current_toggle_count = 2 * (long)frequency * (long)duration / 1000;
 
-    while (1) {
-        if (TCNT0 >= prescaled_counter_reset) {
-            piezo_is_on = !piezo_is_on;
-            pinset(pin, piezo_is_on);
-            TCNT0 = 0;
-            if (duration > 0) {
-                toggle_count--;
-                if (toggle_count == 0) {
-                    break;
-                }
-            }
-            else if (tone_was_interrupted) {
-                tone_was_interrupted = false;
-                break;
-            }
-        }
-    }
+    // Enable interrupt on compare match on OCR0A.
+    sbi(TIMSK, OCIE0A);
+    TCNT0 = 0;
+
     pinlow(pin);
 }
 
 void stop_tone()
 {
-    tone_was_interrupted = true;
+    cbi(TCCR0A, WGM01);
+    cbi(TIMSK, OCIE0A);
+    set_timer0_target(0);
+    current_toggle_count = 0;
+    pinlow(piezo_pin);
 }
 
+ISR(TIMER0_COMPA_vect)
+{
+    pintoggle(piezo_pin);
+    current_toggle_count--;
+    if (current_toggle_count == 0) {
+        stop_tone();
+    }
+}
+
+bool is_playing()
+{
+    return current_toggle_count;
+}

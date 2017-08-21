@@ -59,7 +59,7 @@ bool detect_reed_switch_change()
 }
 
 // Returns whether there's still a note to play after the one being played
-bool play_next_note()
+unsigned int play_next_note()
 {
     const Tune *tune;
     unsigned int note;
@@ -69,17 +69,27 @@ bool play_next_note()
     play_note(PinPiezo, note);
     note_index++;
     note = pgm_read_word(&((*tune)[note_index]));
-    return note > 0;
+    return note;
 }
 
 int main()
 {
-    pinoutputmode(PinPiezo);
-    TCCR0B = 0;
-
 // The PLAY_ONCE mode is useful to debug new tunes
 #ifdef PLAY_ONCE
-    while (play_next_note());
+    unsigned int note;
+#endif
+
+    sei();
+    pinoutputmode(PinPiezo);
+
+#ifdef PLAY_ONCE
+    while ((note = play_next_note()) > 0) {
+        if (note == NOTE_PAUSE) {
+            _delay_ms(300);
+        }
+        while (is_playing());
+        _delay_ms(100);
+    }
     note_index = 0;
 #endif
 

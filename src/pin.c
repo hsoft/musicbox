@@ -48,6 +48,25 @@ void pinset(Pin pin, bool high)
     }
 }
 
+void pintoggle(Pin pin)
+{
+    switch ((pin >> 3) & 0b11) {
+        case 0b01:
+            tbi(PORTB, pin & 0b111);
+            break;
+#ifdef PORTC
+        case 0b10:
+            tbi(PORTC, pin & 0b111);
+            break;
+#endif
+#ifdef PORTD
+        case 0b11:
+            tbi(PORTD, pin & 0b111);
+            break;
+#endif
+    }
+}
+
 bool pinishigh(Pin pin)
 {
     unsigned char portval = 0;
