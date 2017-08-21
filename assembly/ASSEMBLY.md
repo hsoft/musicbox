@@ -32,13 +32,13 @@ debug. I now use jumber connectors and it works very well.
 My perf board is a 9x9 and is enough. It's a bit cramped, but it does the job. That perf board has
 a feature that I think many board have: holes are connected in clusters of 3 (there was a lot of
 pain involved in discovering this fun fact!). We can use that to our advantage by strategically
-place the IC socket in a way that adjacent jumper connections are automatically conencted to their
+place the IC socket in a way that adjacent jumper connections are automatically connected to their
 neighbor IC pin without any need for extra wiring. Handy.
 
 The 3 pulldown resistor must be connected to pins `PB1`, `PB3` and `PB4` because those are the 3
 pins that we use as inputs, and inputs on an AVR chip need pulldown resistors.
 
-We need jumper pins next to pins `PB1`, `PB2`, `PB3` and `PB4.
+We need jumper pins next to pins `PB1`, `PB2`, `PB3` and `PB4`.
 
 As you can see on the photos, I used a complete side of the board for power input, and the opposite
 side from ground. I think it's generally good practice to do that. Each side need 3 jumper pins.
