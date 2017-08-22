@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
+#include "pin.h"
 #include "timer.h"
 #include "util.h"
 
@@ -23,62 +24,63 @@
  * and then called a "process_tone()" function to continue toggling a tone if needed, but for
  * this approach, the MCU definitely wasn't fast enough. The tone was glitchy.
  *
- * This is why I went with this interrupt approach. It's much faster and results in the proper tone
- * being output.
+ * Then there's the interrupt approach. The MCU can generate an interrupt on compare match. It's
+ * much faster and results in the proper tone being output.
  *
- * An even cooler approach could be to put the timer into "pin toggling" mode, but I should have
- * thought of this before I soldered my whole board, because it turns out that the output pin for
- * timer0 is... PB0, an unsoldered pin. I could use timer1 instead of timer0, but it turns out
- * that it works differently from timer0 and I don't have the energy right now to learn about this
- * timer. Maybe later.
+ * But an even cooler approach is to put the timer into "pin toggling" mode. This way, the hardware
+ * does all the work! The downside, however, is that it can only work on pin PB1 and on timer 1:
+ * I haven't soldered PB0 and I don't want to mess with the board's soldering. But otherwise, it
+ * works fine!
+ *
+ * This is only for frequency output. We've got to stop the tone at some point. To do so, we use
+ * our second timer, time0 and tell it to generate an interrupt after the specified number of
+ * millis. In that interrupt, we stop timer1. Easy!
  */
-
-static Pin piezo_pin;
-static volatile unsigned long current_toggle_count = 0;
 
 /* frequency: hertz
  * duration: millis
  */
-void tone(Pin pin, unsigned int frequency, unsigned int duration)
+void tone(unsigned int frequency, unsigned int duration)
 {
     unsigned long target_counter_reset;
 
-    piezo_pin = pin;
+    // We consider frequencies in the 0-10 range "special". We don't output anything, but we still
+    // acts as if we did for the specified duration. You can use this for pauses.
+    if (frequency > 10) {
+        // We divide by 2 because our frequency represent a whole cycle (on, then off)
+        target_counter_reset = F_CPU / frequency / 2;
 
-    // We divide by 2 because our frequency represent a whole cycle (on, then off)
-    target_counter_reset = F_CPU / frequency / 2;
+        set_timer1_target(target_counter_reset);
+        // Enable pin toggling for pin OC1A (PB1)
+        sbi(TCCR1, CTC1);
+        sbi(TCCR1, COM1A0);
+        TCNT1 = 0;
+    }
 
-    set_timer0_target(target_counter_reset);
+    set_timer0_target((F_CPU / 1000) * duration);
     // Enable CTC mode
     sbi(TCCR0A, WGM01);
-    current_toggle_count = 2 * (long)frequency * (long)duration / 1000;
-
     // Enable interrupt on compare match on OCR0A.
     sbi(TIMSK, OCIE0A);
-    TCNT0 = 0;
-
-    pinlow(pin);
+    pinlow(PinB1);
 }
 
 void stop_tone()
 {
+    cbi(TCCR1, COM1A0);
+    set_timer1_target(0);
+    pinlow(PinB1);
+    set_timer0_target(0);
     cbi(TCCR0A, WGM01);
     cbi(TIMSK, OCIE0A);
-    set_timer0_target(0);
-    current_toggle_count = 0;
-    pinlow(piezo_pin);
 }
 
 ISR(TIMER0_COMPA_vect)
 {
-    pintoggle(piezo_pin);
-    current_toggle_count--;
-    if (current_toggle_count == 0) {
-        stop_tone();
-    }
+    stop_tone();
 }
 
 bool is_playing()
 {
-    return current_toggle_count;
+    return isset(TIMSK, OCIE0A);
 }

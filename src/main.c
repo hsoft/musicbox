@@ -7,8 +7,8 @@
 #include "tone.h"
 #include "tune.h"
 
-#define PinPiezo PinB2
-#define PinMagnet PinB1
+#define PinPiezo PinB1
+#define PinMagnet PinB2
 #define PinSel1 PinB3
 #define PinSel2 PinB4
 
@@ -66,7 +66,7 @@ unsigned int play_next_note()
 
     tune = select_tune();
     note = pgm_read_word(&((*tune)[note_index]));
-    play_note(PinPiezo, note);
+    tone(note, 200);
     note_index++;
     note = pgm_read_word(&((*tune)[note_index]));
     return note;
@@ -74,19 +74,13 @@ unsigned int play_next_note()
 
 int main()
 {
-// The PLAY_ONCE mode is useful to debug new tunes
-#ifdef PLAY_ONCE
-    unsigned int note;
-#endif
 
     sei();
     pinoutputmode(PinPiezo);
 
+// The PLAY_ONCE mode is useful to debug new tunes
 #ifdef PLAY_ONCE
-    while ((note = play_next_note()) > 0) {
-        if (note == NOTE_PAUSE) {
-            _delay_ms(300);
-        }
+    while (play_next_note()) {
         while (is_playing());
         _delay_ms(100);
     }

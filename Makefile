@@ -10,7 +10,7 @@ TuneName1 ?= douce
 TuneName2 ?= tortoise
 TuneName3 ?= funkytown
 
-OBJS = $(addprefix src/, main.o pin.o tone.o tune.o timer.o)
+OBJS = $(addprefix src/, main.o pin.o tone.o timer.o)
 OBJS += $(addprefix src/tunes/, $(TuneName1).o $(TuneName2).o $(TuneName3).o)
 PROGNAME = musicbox
 

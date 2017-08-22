@@ -30,3 +30,35 @@ bool set_timer0_target(unsigned long ticks)
     OCR0A = ticks >> prescaler_shifts[prescaler_index];
     return true;
 }
+
+bool set_timer1_target(unsigned long ticks)
+{
+    unsigned char prescaler_shift;
+
+    if (ticks == 0) {
+        // Stop the timer.
+        TCCR1 &= 0b11110000;
+        OCR1C = 0;
+        return true;
+    }
+
+    // Timer1 has a prescaler for every possible shift situation, from 0 to 14. No need
+    // for a prescaler_shifts table! It also happens that these prescaler ids are sequential. We
+    // don't need a table of prescaler_bits either. We only need to take (shiftvalue + 1) and
+    // there are our prescaler bits!
+    for (prescaler_shift=0; prescaler_shift<=14; prescaler_shift++) {
+        if (ticks >> prescaler_shift <= 0xff) {
+            break;
+        }
+    }
+    if (prescaler_shift > 14) {
+        return false;
+    }
+    // Set CS10, CS11 and CS12 according to our selected prescaler bits
+    TCCR1 &= 0b11110000;
+    TCCR1 |= (prescaler_shift+1);
+    // Unlike timer0, it's the **C** register that acts as the "TOP" value with timer1
+    OCR1C = ticks >> prescaler_shift;
+    OCR1A = OCR1C;
+    return true;
+}

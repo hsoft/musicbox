@@ -18,6 +18,3 @@
 #define NOTE_F5 698
 
 typedef unsigned int Tune[];
-
-void play_note(Pin pin, unsigned int frequency);
-void play_tune(Pin pin, Tune tune);
