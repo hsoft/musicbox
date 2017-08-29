@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pin.h"
+#include "../common/pin.h"
 
 #define NOTE_PAUSE 1
 #define NOTE_B3 247

@@ -2,8 +2,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-#include "pin.h"
-#include "util.h"
+#include "../common/pin.h"
+#include "../common/util.h"
 #include "tone.h"
 #include "tune.h"
 

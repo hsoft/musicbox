@@ -2,9 +2,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
-#include "pin.h"
+#include "../common/pin.h"
+#include "../common/util.h"
 #include "timer.h"
-#include "util.h"
 
 /* Tone generation unit
  *
