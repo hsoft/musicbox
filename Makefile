@@ -6,9 +6,9 @@ F_CPU ?= 1000000UL
 AVRDUDEMCU ?= t45
 AVRDUDEARGS ?= -c usbtiny -P usb 
 
-TuneName1 ?= douce
+TuneName1 ?= cerf
 TuneName2 ?= tortoise
-TuneName3 ?= funkytown
+TuneName3 ?= douce
 
 OBJS = $(addprefix src/, main.o tone.o tune.o timer.o)
 OBJS += $(addprefix common/, pin.o)
